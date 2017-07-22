@@ -1,0 +1,9 @@
+FROM ubuntu:17.10
+
+RUN apt-get update && apt-get install golang -y
+
+RUN mkdir -p /app
+WORKDIR /app
+COPY . /app
+ENV PATH=/usr/bin:/bin:/app:$PATH
+CMD [ "true" ]

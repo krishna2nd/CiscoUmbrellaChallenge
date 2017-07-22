@@ -1,0 +1,47 @@
+version: '2'
+
+services:
+  app:
+    build: .
+    env_file:
+      - ./uscanner.env
+    volumes:
+      - ./data :/data
+    command: "true"
+
+  uscanner:
+    container_name: uscanner
+    extends: app
+    environment:
+      PORT: :9090
+      CACHE_URL: uscanner_db:6379
+    expose:
+      - 9090
+    command: "./uscanner"
+    depends_on:
+      - uscanner_db
+
+  uscanner_db:
+    container_name: uscanner_db
+    image: redis:3.0.7
+
+  test:
+    extends: app
+    container_name: test-uscanner
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    env_file:
+      - ./uscanner.test.env
+    environment:
+      PORT: :9090
+      CACHE_URL: uscanner_test_db:6379
+    expose:
+      - 9090
+    command: "/usr/bin/make run-test"
+    depends_on:
+      - uscanner_test_db
+
+  uscanner_test_db:
+    container_name: uscanner_test_db
+    image: redis:3.0.7
